@@ -1,0 +1,13 @@
+<h1>New Post</h1>
+
+<%= form_with model: @post, url: posts_path, local: true do |f| %>
+  <div>
+    <%= f.label :content, "Post Content:" %>
+    <%= f.text_area :content, placeholder: "Share your thoughts...", rows: 6 %>
+  </div>
+  <div>
+    <%= f.submit "Create Post", class: "btn btn-success" %>
+  </div>
+<% end %>
+
+<%= link_to "Back to Posts", posts_path, class: "btn btn-secondary" %>
