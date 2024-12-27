@@ -1,0 +1,82 @@
+<h1 class="text-center my-4">All Posts</h1>
+
+<% if user_signed_in? %>
+  <!-- User Info and Post Creation -->
+  <div class="text-center mb-4">
+    <h3 class="text-muted">Welcome, <%= current_user.email %></h3>
+    <div class="card p-4 shadow-sm mb-4">
+      <h5 class="text-center text-muted">Create a New Post</h5>
+      <%= form_with model: Post.new, url: posts_path, local: true do |f| %>
+        <div class="mb-3">
+          <%= f.text_area :content, placeholder: "What's on your mind?", rows: 3, class: "form-control rounded-lg" %>
+        </div>
+        <div class="text-center">
+          <%= f.submit "Post", class: "btn btn-primary d-flex align-items-center justify-content-center" %>
+          <i class="bi bi-send-fill ms-2"></i> <!-- Send icon -->
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<hr class="my-4">
+
+<% @posts.each do |post| %>
+  <div class="card mb-4 shadow-sm rounded-lg">
+    <div class="card-body">
+      <!-- User Info -->
+      <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+        <strong><%= post.user.email %></strong>
+      </div>
+
+      <!-- Post Content -->
+      <p class="card-text my-3"><%= post.content %></p>
+
+      <!-- Time Ago -->
+      <p class="text-muted">
+        <i class="bi bi-clock me-1"></i>
+        Posted <%= time_ago_in_words(post.created_at) %> ago
+      </p>
+
+      <!-- Like/Unlike Button -->
+      <div class="d-flex align-items-center mb-3">
+        <% if user_signed_in? %>
+          <% if current_user.likes.exists?(post: post) %>
+            <%= button_to post_like_path(post), method: :delete, class: "btn btn-danger me-2 d-flex align-items-center" do %>
+              <i class="bi bi-heart-fill text-light me-1"></i> Unlike
+            <% end %>
+          <% else %>
+            <%= button_to post_like_path(post), method: :post, class: "btn btn-outline-danger me-2 d-flex align-items-center" do %>
+              <i class="bi bi-heart text-danger me-1"></i> Like
+            <% end %>
+          <% end %>
+        <% else %>
+          <p><%= link_to "Sign in", new_user_session_path, class: "text-decoration-none fw-bold" %> to like posts.</p>
+        <% end %>
+        <p class="mb-0"><i class="bi bi-heart me-1"></i> <%= pluralize(post.likes.count, "like") %></p>
+      </div>
+
+      <!-- Comments Section -->
+      <h6 class="text-muted mb-2">Comments:</h6>
+      <% post.comments.each do |comment| %>
+        <div class="mb-2 ps-3">
+          <p class="mb-1">
+            <strong><i class="bi bi-chat-left-dots-fill me-1"></i> <%= comment.user.email %>:</strong> <%= comment.content %>
+          </p>
+        </div>
+      <% end %>
+
+      <!-- Add Comment Form -->
+      <% if user_signed_in? %>
+        <div class="mt-3">
+          <%= form_with model: [post, Comment.new], local: true, class: "d-flex align-items-start" do |f| %>
+            <%= f.text_area :content, placeholder: "Add a comment...", rows: 1, class: "form-control me-2 rounded-lg" %>
+            <%= f.submit "Comment", class: "btn btn-outline-primary rounded-lg d-flex align-items-center" %>
+            <i class="bi bi-send-fill ms-2"></i> <!-- Send icon -->
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
